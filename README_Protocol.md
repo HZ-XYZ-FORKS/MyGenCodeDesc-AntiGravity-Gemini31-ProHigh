@@ -169,6 +169,53 @@ If any field mismatches, the record **must be rejected** to prevent silently joi
 
 In the current v26.04 example, a `lineRange: {from: 2, to: 14}` add entry has `blame.originalLine: 2`. The intended semantics is that line 2 maps to original line 2, line 3 to original line 3, etc. (contiguous 1:1 mapping). This works because the `_detailSemantics.lineRange_constraint` requires all lines in the range to share the same blame origin with a contiguous original block. However, the protocol should ideally use `blame.originalLineRange: {from: 2, to: 14}` to be fully unambiguous. Forks should treat `blame.originalLine` in a lineRange entry as the **start** of a contiguous original range.
 
+### v26.04 rename examples
+
+**Pure rename** (`old.py` → `new.py`, no content change):
+
+The v26.04 record for the rename commit has **no DETAIL entries**. No lines were added or deleted — the incremental model only records content changes. The accumulated surviving set still references `originalFilePath: "old.py"`, and the metric is unaffected (genRatio is path-independent).
+
+```jsonc
+// v26.04 for commit bbb (pure rename: old.py → new.py)
+// DETAIL is empty — no line content changed
+{
+    "DETAIL": [],
+    "REPOSITORY": {
+        "vcsType": "git",
+        "revisionId": "bbb",
+        "revisionTimestamp": "2026-03-16T10:00:00Z"
+    }
+}
+```
+
+**Rename + modify one line** (`old.py` → `new.py`, line 2 rewritten by human):
+
+```jsonc
+// v26.04 for commit bbb (rename + modify line 2)
+{
+    "DETAIL": [
+        {
+            "fileName": "new.py",
+            "codeLines": [
+                // delete the OLD version of line 2 (keyed by its blame origin)
+                {
+                    "changeType": "delete",
+                    "blame": { "revisionId": "aaa", "originalFilePath": "old.py", "originalLine": 2 }
+                },
+                // add the NEW version of line 2 (blame points to THIS commit, at new path)
+                {
+                    "changeType": "add",
+                    "lineLocation": 2, "genRatio": 0, "genMethod": "Manual",
+                    "blame": { "revisionId": "bbb", "originalFilePath": "new.py", "originalLine": 2,
+                               "timestamp": "2026-03-16T10:00:00Z" }
+                }
+            ]
+        }
+    ]
+}
+// Lines 1 and 3: unchanged, no entries — blame still traces to revision aaa at old.py
+```
+
 ---
 
 ## ======>>>VERSION EVOLUTION POLICY<<<======

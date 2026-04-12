@@ -2,9 +2,11 @@
 
 - BASE of genCodeDesc, used to PlayKata with CodeAgent&LLM such as Copilot+[GPT,Opus,Sonnet].
   - which means: we have WHAT&WHY of genCodeDesc in this BASE, then we fork genCodeDesc for different CodeAgent&LLM to implement WHEN&WHERE&HOW to genCodeDesc.
+  - use method: CaTDD(Comment-alive Test-Driven Development) from:
+    - UserStory+UserGuide -> AcceptanceCriteria -> TestCase -> Implementation.
 
 - Example:
-  - `fork` MyGenCodeDescBase -> MyGenCodeDesc_Copilot_GPT-5.4-Xhigh
+  - `fork` MyGenCodeDescBase -> MyGenCodeDesc_Copilot_GPT-5.4-Xhigh_Python
 
 ---
 
@@ -30,6 +32,11 @@
 
 - The metric is defined on the **live snapshot** at `endTime` — deleted lines do not count, old versions do not count.
 - The metric is **weighted** by `genRatio`, not a binary AI-or-human count.
+- We want a tool named **`aggregateGenCodeDesc`** to compute this metric.
+  - Language: **Python** or **C++** or **Rust** — each fork chooses one.
+  - Input: `repoURL + repoBranch + startTime + endTime` + genCodeDesc metadata.
+  - Output: aggregate result in genCodeDesc protocol-shaped JSON.
+  - Must support Algorithm A/B/C and Scope A/B/C/D as defined in this BASE.
 - This BASE defines the WHAT & WHY. Each fork implements the WHEN & WHERE & HOW for a specific CodeAgent & LLM.
 
 ## ======>>>WHY Protocol v26.03 & v26.04<<<======
