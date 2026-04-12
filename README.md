@@ -87,6 +87,8 @@ VCS conditions that affect line attribution and must be handled correctly by any
 | **AI line → human edit** | Human modifies AI-generated line | **Ownership transfers to human.** genRatio from old genCodeDesc no longer applies. |
 | **Human line → AI rewrite** | AI rewrites a human line | **Ownership transfers to AI.** genRatio comes from the new genCodeDesc. |
 | **Whitespace-only change** | Indentation, trailing space, etc. | Blame **may or may not** attribute to the new commit depending on VCS settings (`git blame -w`). Policy decision needed. |
+| **Line ending change** | CRLF↔LF conversion (e.g., `.gitattributes` change) | Diff sees **every line** as changed. All lines get new blame origin in one commit — genCodeDesc must describe the entire file. |
+| **Identical content re-added** | Line deleted in commit X, same text re-added in commit Y | **New origin** (commit Y). Same text does NOT mean same attribution — blame tracks revision, not content. |
 | **Line moved within file** | Cut-paste to different line number | Blame attributes to the commit that moved it. In v26.04: delete at old position + add at new position. |
 
 ### Branch/History Conditions
@@ -98,6 +100,8 @@ VCS conditions that affect line attribution and must be handled correctly by any
 | **Commit outside window** | Line's origin commit is before `startTime` | Line is **excluded** from metric — it's live but not "changed within the window". |
 | **SVN path-copy** | SVN's branch/tag mechanism | Blame behavior depends on SVN's mergeinfo handling — less reliable than Git. Edge cases exist. |
 | **SVN mergeinfo** | SVN tracks merge metadata differently | `svn blame` may return imprecise results for lines from merged branches. Known limitation. |
+| **Shallow clone** | `git clone --depth N` limits history | AlgA: `git blame` hits boundary — lines beyond depth shown as originating from the boundary commit (wrong origin). AlgB: diffs beyond depth unavailable. AlgC: unaffected (self-sufficient). |
+| **Submodule / subtree** | Code from another repo embedded in the tree | Parent repo blame does NOT trace into submodule history. Submodule has its own `repoURL` — needs its own genCodeDesc chain. Policy decision: include or exclude. |
 
 ### Destructive / Edge Conditions
 
@@ -105,5 +109,28 @@ VCS conditions that affect line attribution and must be handled correctly by any
 |---|---|---|
 | **Lost genCodeDesc** | One revision's genCodeDesc is missing | AlgA/B: lines treated as `genRatio=0` (unattributed). AlgC: **chain broken**, result corrupted. |
 | **Corrupted genCodeDesc** | Wrong revisionId or wrong line mappings | Validation rules should catch mismatched `REPOSITORY` fields. Line-level errors are **silent**. |
-| **Binary file in scope** | Binary file passes source extension filter | Should be excluded by scope definition — but scope only checks extension, not content. |
-| **Generated code** (e.g., protobuf output) | Machine-generated code, not AI-generated | Not handled by genCodeDesc — genCodeDesc tracks AI attribution, not all code generation. Policy decision per fork. |
+| **Duplicate genCodeDesc** | Two records for the same revisionId | Undefined behavior. Aggregator must detect and reject (or pick-last). AlgC is especially fragile — duplicate adds inflate the surviving set. |
+| **Clock skew** | Commit timestamps not monotonically increasing | AlgC sorts by `revisionTimestamp`. Non-monotonic timestamps → wrong accumulation order → wrong surviving set. Git allows arbitrary author dates. |
+
+### Scale / Performance Conditions
+
+Reference scale: **1K commits × 100 files/commit × 10K lines/file add-or-delete** in `[startTime, endTime]`.
+
+| Dimension | Value | Derived |
+|---|---|---|
+| Commits in window | 1,000 | — |
+| Files touched per commit | 100 | 100K file-commit pairs total |
+| Lines added or deleted per file | 10,000 | 1M line entries per commit; **1B line entries** over the window |
+| Distinct files at endTime | ~10,000 (upper bound) | Depends on overlap across commits |
+| Lines per file at endTime | ~10,000 | Surviving set ≈ **100M lines** (upper bound) |
+| genCodeDesc file size (per commit) | ~1M DETAIL entries × ~200 bytes ≈ **200 MB JSON** | 1,000 files × 200 MB = **200 GB** total genCodeDesc storage |
+
+| Concern | AlgA (live blame) | AlgB (diff replay) | AlgC (embedded blame) |
+|---|---|---|---|
+| **VCS calls** | ~10K `git blame` calls (one per file at endTime). Each walks full history — **bottleneck**. | ~1K `git diff` fetches. Each returns 100 files × 10K lines = **1M lines per diff**. | **Zero** — no VCS access. |
+| **CPU** | Parsing 10K blame outputs × 10K lines each = **100M blame lines** to parse. Parallelizable per file. | 1K sequential diffs × 1M lines each = **1B lines** of diff-replay. Line-position tracking across chained diffs — **cannot parallelize across commits**. | Parsing 1K JSON files × 1M entries each = **1B JSON entries**. Set insert/delete operations: **1B hash-map ops**. Parallelizable by file if sharded. |
+| **Memory** | One blame result at a time per file (10K lines) — **low** (~1 MB). Parallelism multiplies: 100 concurrent = ~100 MB. | Must track line identity through 1K chained diffs. Per-file state: 10K lines × commit chain. Peak: **~10 GB** for large files with heavy churn. | Surviving set: up to **100M keys** × ~64 bytes/key = **~6 GB** hash map. Plus one genCodeDesc in-flight (~200 MB parsed). |
+| **I/O** | Network: 10K blame requests. Local disk: fast. Remote VCS: **latency-bound** (10K round trips or batch API). | Network: 1K diff requests. Payload: ~1K × 1M lines × ~50 bytes = **~50 GB** raw diff data over the wire. | Disk: read 1K genCodeDesc files totaling **~200 GB**. Sequential scan — **disk throughput-bound**. SSD: ~200 GB / 2 GB/s ≈ **100 seconds** I/O alone. |
+| **Sorting** | N/A — blame is per-file, order-independent. | Commits must be in topological order. 1K commits — trivial. | Must sort 1K genCodeDescs by `revisionTimestamp`. O(N log N), N=1K — **trivial**. |
+| **Worst case** | 10K files × deep rename chains — blame must trace through renames across 1K commits. `git blame -C -C` is **10× slower**. | 100 files renamed every commit → line-position tracker must follow 100K renames over 1K diffs. State explosion. | 1B set operations + 6 GB hash map. If genCodeDesc files have errors (duplicate keys), surviving set is **silently corrupted**. |
+| **Mitigation** | Parallelize blame (100 concurrent). `git blame --incremental` for streaming. Cache blame results. Skip files unchanged since last run. | Limit window size. Stream diffs. Shard replay by file path. Pre-compute file rename graph. | Stream genCodeDescs in order — don't load all 200 GB at once. Shard surviving set by file path. Use mmap for large JSON. Validate entry counts against SUMMARY. |
