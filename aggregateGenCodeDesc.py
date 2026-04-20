@@ -386,6 +386,11 @@ def run_algC(metadata_store, start_time, end_time):
     for ts, commit_id, data in commits:
         if ts < start_time or ts > end_time: continue
         
+        # Explicit V26.04 Constraint Mapping
+        if data.get("protocolVersion") != "26.04":
+            logger.warning(f"AlgC natively requires v26.04! Found version '{data.get('protocolVersion')}' in {commit_id}. Skipping extraction.")
+            continue
+            
         summary_lines = data.get("SUMMARY", {}).get("lineCount", -1)
         actual_lines = 0
             
