@@ -497,7 +497,7 @@ def main():
     parser.add_argument("--startTime", required=True)
     parser.add_argument("--endTime", required=True)
     parser.add_argument("--genCodeDescDir", required=True)
-    parser.add_argument("--alg", default="C")
+    parser.add_argument("--alg", default="A")
     parser.add_argument("--patchesDir")
     parser.add_argument("--threshold", type=int, default=60)
     parser.add_argument("--log-level", default="INFO")

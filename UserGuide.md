@@ -89,8 +89,8 @@ python aggregateGenCodeDesc.py \
   --patchesDir /offline/svn_localCommitPatches
 ```
 
-### 3. Algorithm C: Embedded Blame (v26.04 only)
-AlgC linearly processes self-sufficient `v26.04` metadata files. It needs absolute zero VCS access—no local patches and no checkouts. It just accumulates surviving lines via embedded metadata mapping.
+### 3. Algorithm C: Embedded Blame (v26.03+)
+AlgC linearly processes self-sufficient `v26.03+` metadata files. It needs absolute zero VCS access—no local patches and no checkouts. It just accumulates surviving lines via embedded metadata mapping.
 ```bash
 python aggregateGenCodeDesc.py \
   --repoURL https://gitlab.internal/core/auth \
