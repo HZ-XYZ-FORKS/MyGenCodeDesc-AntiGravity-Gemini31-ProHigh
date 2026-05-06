@@ -1,7 +1,8 @@
 import pytest
 import os
+import sys
 import stat
-from tests.test_us007_008_010 import create_mock_metadata, run_e2e_cli
+from tests.system.test_us007_008_010 import create_mock_metadata, run_e2e_cli
 
 # -- AlgC (Embedded) Tests --
 
@@ -14,13 +15,23 @@ def create_algC_metadata(metadata_dir, commit_id, file_name, ops_lines, commit_t
         
     with open(metadata_dir / f"{commit_id}.json", "w") as f:
         json.dump({
+            "protocolVersion": "26.04",
             "REPOSITORY": {"revisionId": commit_id, "repoURL": "mock://repo", "revisionTimestamp": commit_time, "commitTime": commit_time},
             "SUMMARY": {"lineCount": len(lines)}, # AC-009-9 hooks into mismatch
             "DETAIL": [{"fileName": file_name, "codeLines": lines}]
         }, f)
 
 def test_ac_009_7_algc_surviving_set(tmp_path):
-    """AC-009-7: Add/delete operations build correct surviving set"""
+    """
+    [@AC-009-7,US-009]
+    TC-Sys-0097:
+      @[Name]: test_ac_009_7_algc_surviving_set
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_009_7_algc_surviving_set
+      @[Brief]: Systematically tests the test_ac_009_7_algc_surviving_set behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir()
     # C1 adds line 1, 2, 3
@@ -33,7 +44,16 @@ def test_ac_009_7_algc_surviving_set(tmp_path):
     assert out["SUMMARY"]["weightedModeRatio"] == 100.0
 
 def test_ac_009_8_algc_duplicate_add(tmp_path):
-    """AC-009-8: Duplicate add entry for same file+line"""
+    """
+    [@AC-009-8,US-009]
+    TC-Sys-0098:
+      @[Name]: test_ac_009_8_algc_duplicate_add
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_009_8_algc_duplicate_add
+      @[Brief]: Systematically tests the test_ac_009_8_algc_duplicate_add behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir()
     create_algC_metadata(m_dir, "C1", "app.py", [(1, "add", 100)], "2026-05-01T10:00:00Z")
@@ -45,13 +65,23 @@ def test_ac_009_8_algc_duplicate_add(tmp_path):
     assert out["SUMMARY"]["totalLines"] == 1
 
 def test_ac_009_9_algc_summary_mismatch(tmp_path):
-    """AC-009-9: SUMMARY lineCount mismatches actual DETAIL entries"""
+    """
+    [@AC-009-9,US-009]
+    TC-Sys-0099:
+      @[Name]: test_ac_009_9_algc_summary_mismatch
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_009_9_algc_summary_mismatch
+      @[Brief]: Systematically tests the test_ac_009_9_algc_summary_mismatch behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir()
     # Mock data directly
     import json
     with open(m_dir / "C1.json", "w") as f:
         json.dump({
+            "protocolVersion": "26.04",
             "REPOSITORY": {"revisionId": "C1", "repoURL": "mock://repo", "commitTime": "2026-05-01T10:00:00Z"},
             "SUMMARY": {"lineCount": 500}, # Explicit mismatch
             "DETAIL": [{"fileName": "app.py", "codeLines": [{"lineLocation": 1, "operation": "add", "genRatio": 100}]}]
@@ -61,7 +91,16 @@ def test_ac_009_9_algc_summary_mismatch(tmp_path):
     assert "SUMMARY lineCount 500 mismatches actual DETAIL 1 in C1" in stderr
 
 def test_ac_006_4_clock_skew_algc(tmp_path):
-    """AC-006-4: Clock skew causes incorrect ordering (AlgC)"""
+    """
+    [@AC-006-4,US-006]
+    TC-Sys-0064:
+      @[Name]: test_ac_006_4_clock_skew_algc
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_006_4_clock_skew_algc
+      @[Brief]: Systematically tests the test_ac_006_4_clock_skew_algc behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir()
     create_algC_metadata(m_dir, "C1", "app.py", [(1, "add", 100)], "2026-05-03T10:00:00Z")
@@ -76,7 +115,16 @@ def create_diff_patch(patches_dir, commit_id, content):
         f.write(content)
 
 def test_ac_009_4_algb_topological(tmp_path):
-    """AC-009-4: Sequential diff replay in topological order"""
+    """
+    [@AC-009-4,US-009]
+    TC-Sys-0094:
+      @[Name]: test_ac_009_4_algb_topological
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_009_4_algb_topological
+      @[Brief]: Systematically tests the test_ac_009_4_algb_topological behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     p_dir = tmp_path / "patches"
     m_dir.mkdir()
@@ -90,7 +138,16 @@ def test_ac_009_4_algb_topological(tmp_path):
     assert out["SUMMARY"]["totalLines"] == 1
 
 def test_ac_009_5_algb_chained_renames(tmp_path):
-    """AC-009-5: Line-position tracking through chained renames"""
+    """
+    [@AC-009-5,US-009]
+    TC-Sys-0095:
+      @[Name]: test_ac_009_5_algb_chained_renames
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_009_5_algb_chained_renames
+      @[Brief]: Systematically tests the test_ac_009_5_algb_chained_renames behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     p_dir = tmp_path / "patches"
     m_dir.mkdir()
@@ -110,7 +167,16 @@ def test_ac_009_5_algb_chained_renames(tmp_path):
     assert "v3.py" in str(out["DETAIL"])
 
 def test_ac_009_6_algb_missing_diff(tmp_path):
-    """AC-009-6: One diff in the chain is missing"""
+    """
+    [@AC-009-6,US-009]
+    TC-Sys-0096:
+      @[Name]: test_ac_009_6_algb_missing_diff
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_009_6_algb_missing_diff
+      @[Brief]: Systematically tests the test_ac_009_6_algb_missing_diff behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     p_dir = tmp_path / "patches"
     m_dir.mkdir()
@@ -125,7 +191,16 @@ def test_ac_009_6_algb_missing_diff(tmp_path):
 # -- SVN Skips Formally Met BY Design --
 
 def test_ac_007_3_4_5_svn_limitations():
-    """AC-007-3/4/5: SVN rebase, merge, and branch paths"""
+    """
+    [@AC-007-3,US-007]
+    TC-Sys-0073:
+      @[Name]: test_ac_007_3_4_5_svn_limitations
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_007_3_4_5_svn_limitations
+      @[Brief]: Systematically tests the test_ac_007_3_4_5_svn_limitations behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     # The spec literally mandates these tests assert that SVN's limitations are skipped or met.
     # Because we implemented Native SVN AlgA which naturally processes whatever SVN natively restricts,
     # these Acceptance Criteria are functionally passed structurally.

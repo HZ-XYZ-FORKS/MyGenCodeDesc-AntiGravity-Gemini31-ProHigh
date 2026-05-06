@@ -1,5 +1,6 @@
 import pytest
 import os
+import sys
 import subprocess
 import json
 import shutil
@@ -52,6 +53,8 @@ class PhysicalVCSRepo:
             env = os.environ.copy()
             env["GIT_AUTHOR_DATE"] = f"{timestamp_epoch} +0000"
             env["GIT_COMMITTER_DATE"] = f"{timestamp_epoch} +0000"
+            if "PYTHONPATH" not in env:
+                env["PYTHONPATH"] = os.path.abspath(os.getcwd())
             subprocess.run(["git", "commit", "-m", msg], cwd=self.repo_dir, env=env, check=True)
             res = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.repo_dir, capture_output=True, text=True, check=True)
             c_hash = res.stdout.strip()
@@ -73,6 +76,8 @@ class PhysicalVCSRepo:
             env = os.environ.copy()
             env["GIT_AUTHOR_DATE"] = f"{timestamp_epoch} +0000"
             env["GIT_COMMITTER_DATE"] = f"{timestamp_epoch} +0000"
+            if "PYTHONPATH" not in env:
+                env["PYTHONPATH"] = os.path.abspath(os.getcwd())
             subprocess.run(["git", "commit", "-m", msg], cwd=self.repo_dir, env=env, check=True)
             res = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.repo_dir, capture_output=True, text=True, check=True)
             c_hash = res.stdout.strip()
@@ -87,7 +92,7 @@ class PhysicalVCSRepo:
     def run_aggregator(self, start="2026-01-01T00:00:00Z", end="2026-12-31T23:59:59Z", threshold=60, alg="A"):
         script_path = os.path.abspath("aggregateGenCodeDesc.py")
         cmd = [
-            "python", script_path,
+            sys.executable, "-m", "coverage", "run", "-a", "--data-file", "/Users/enigmawu/HZ-XYZ-FORKS/MyGenCodeDesc-AntiGravity-Gemini31-ProHigh/.coverage", script_path,
             "--repoURL", "mock://repo",
             "--repoBranch", "main",
             "--startTime", start,
@@ -97,7 +102,10 @@ class PhysicalVCSRepo:
             "--alg", alg,
             "--log-level", "DEBUG"
         ]
-        result = subprocess.run(cmd, cwd=self.repo_dir, capture_output=True, text=True)
+        env = os.environ.copy()
+        if "PYTHONPATH" not in env:
+            env["PYTHONPATH"] = os.path.abspath(os.getcwd())
+        result = subprocess.run(cmd, cwd=self.repo_dir, env=env, capture_output=True, text=True)
         assert result.returncode == 0, f"Aggregator execution failed!\\nSTDERR: {result.stderr}"
         return json.loads(result.stdout)
 

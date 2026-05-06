@@ -1,6 +1,16 @@
 import pytest
 
 def test_ac_002_1_pure_rename(vcs):
+    """
+    [@AC-002-1,US-002]
+    TC-Sys-0021:
+      @[Name]: test_ac_002_1_pure_rename
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_002_1_pure_rename
+      @[Brief]: Systematically tests the test_ac_002_1_pure_rename behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     if vcs.vcs_type == "svn":
         pytest.skip("SVN native copy/rename tracing without history tracking flags is implicitly skipped")
     content = chr(10).join([f"line_{i}" for i in range(100)]) + chr(10)
@@ -14,6 +24,16 @@ def test_ac_002_1_pure_rename(vcs):
     assert out["SUMMARY"]["weightedModeRatio"] == 100.0
 
 def test_ac_002_2_rename_and_modify(vcs):
+    """
+    [@AC-002-2,US-002]
+    TC-Sys-0022:
+      @[Name]: test_ac_002_2_rename_and_modify
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_002_2_rename_and_modify
+      @[Brief]: Systematically tests the test_ac_002_2_rename_and_modify behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     if vcs.vcs_type == "svn":
         pytest.skip("SVN native copy/rename tracing without history tracking flags is implicitly skipped")
     content = chr(10).join([f"line_{i}" for i in range(100)]) + chr(10)
@@ -31,6 +51,16 @@ def test_ac_002_2_rename_and_modify(vcs):
     assert out["SUMMARY"]["weightedModeRatio"] == 90.0
 
 def test_ac_002_3_deleted_file(vcs):
+    """
+    [@AC-002-3,US-002]
+    TC-Sys-0023:
+      @[Name]: test_ac_002_3_deleted_file
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_002_3_deleted_file
+      @[Brief]: Systematically tests the test_ac_002_3_deleted_file behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     content = chr(10).join([f"line_{i}" for i in range(50)]) + chr(10)
     meta = {i+1: 100 for i in range(50)}
     vcs.commit_file("removed.py", content, "Init", metadata_map=meta)
@@ -48,4 +78,14 @@ def test_ac_002_3_deleted_file(vcs):
     assert out["SUMMARY"]["totalLines"] == 0
 
 def test_ac_002_4_file_copied(vcs):
+    """
+    [@AC-002-4,US-002]
+    TC-Sys-0024:
+      @[Name]: test_ac_002_4_file_copied
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_002_4_file_copied
+      @[Brief]: Systematically tests the test_ac_002_4_file_copied behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     pass

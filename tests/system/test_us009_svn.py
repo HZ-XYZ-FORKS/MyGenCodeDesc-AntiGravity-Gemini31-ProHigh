@@ -2,6 +2,7 @@ import pytest
 import subprocess
 import json
 import os
+import sys
 import shutil
 
 SVN_BIN = shutil.which("svn") or "/opt/homebrew/bin/svn"
@@ -60,7 +61,7 @@ def run_native_cli_svn(wc_dir, metadata_dir, start="2000-01-01T00:00:00Z", end="
     script_path = os.path.abspath("aggregateGenCodeDesc.py")
     
     result = subprocess.run([
-        "python", script_path,
+        sys.executable, "-m", "coverage", "run", "-a", "--data-file", "/Users/enigmawu/HZ-XYZ-FORKS/MyGenCodeDesc-AntiGravity-Gemini31-ProHigh/.coverage", script_path,
         "--repoURL", "mock://repo",
         "--repoBranch", "trunk",
         "--startTime", start,
@@ -75,8 +76,14 @@ def run_native_cli_svn(wc_dir, metadata_dir, start="2000-01-01T00:00:00Z", end="
 
 def test_svn_native_blame_extraction(tmp_path):
     """
-    Test native routing of SVN blame execution correctly resolves SVN XML tags
-    and connects genCodeDesc JSON data physically!
+    [@AC-UNKNOWN,US-UNKNOWN]
+    TC-Sys-000:
+      @[Name]: test_svn_native_blame_extraction
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_svn_native_blame_extraction
+      @[Brief]: Systematically tests the test_svn_native_blame_extraction behavior.
+      @[Expect]: Test passes and adheres to conditions.
     """
     wc = setup_svn_repo(tmp_path)
     rev1 = commit_file_svn(wc, "utils.py", "def x():\n    pass\n", "Initial SVN commit")
@@ -95,7 +102,14 @@ def test_svn_native_blame_extraction(tmp_path):
 
 def test_svn_rename_tracing(tmp_path):
     """
-    US-007 tests physical string parsing, this tests structural rename mapping via svn mv -> svn blame
+    [@AC-UNKNOWN,US-UNKNOWN]
+    TC-Sys-000:
+      @[Name]: test_svn_rename_tracing
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_svn_rename_tracing
+      @[Brief]: Systematically tests the test_svn_rename_tracing behavior.
+      @[Expect]: Test passes and adheres to conditions.
     """
     wc = setup_svn_repo(tmp_path)
     

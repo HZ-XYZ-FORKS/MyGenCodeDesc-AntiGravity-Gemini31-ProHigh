@@ -1,0 +1,6 @@
+[run]
+concurrency = multiprocessing
+sigterm = true
+data_file = .coverage
+source =
+    aggregateGenCodeDesc

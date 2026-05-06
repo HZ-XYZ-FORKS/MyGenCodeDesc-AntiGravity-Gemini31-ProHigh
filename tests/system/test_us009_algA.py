@@ -2,6 +2,7 @@ import pytest
 import subprocess
 import json
 import os
+import sys
 import shutil
 
 def setup_git_repo(tmp_path):
@@ -58,7 +59,7 @@ def run_native_cli(repo_dir, metadata_dir, start="2026-01-01T00:00:00Z", end="20
     script_path = os.path.abspath("aggregateGenCodeDesc.py")
     
     result = subprocess.run([
-        "python", script_path,
+        sys.executable, "-m", "coverage", "run", "-a", "--data-file", "/Users/enigmawu/HZ-XYZ-FORKS/MyGenCodeDesc-AntiGravity-Gemini31-ProHigh/.coverage", script_path,
         "--repoURL", "mock://repo",
         "--repoBranch", "main",
         "--startTime", start,
@@ -73,7 +74,14 @@ def run_native_cli(repo_dir, metadata_dir, start="2026-01-01T00:00:00Z", end="20
 
 def test_ac_009_1_rename_tracking(tmp_path):
     """
-    AC-009-1: AlgA follows renamed file via git blame -M natively.
+    [@AC-009-1,US-009]
+    TC-Sys-0091:
+      @[Name]: test_ac_009_1_rename_tracking
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_009_1_rename_tracking
+      @[Brief]: Systematically tests the test_ac_009_1_rename_tracking behavior.
+      @[Expect]: Test passes and adheres to conditions.
     """
     repo = setup_git_repo(tmp_path)
     
@@ -101,7 +109,14 @@ def test_ac_009_1_rename_tracking(tmp_path):
 
 def test_ac_009_2_cross_file_copy(tmp_path):
     """
-    AC-009-2: AlgA detects code moved from another file via -C -C
+    [@AC-009-2,US-009]
+    TC-Sys-0092:
+      @[Name]: test_ac_009_2_cross_file_copy
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_009_2_cross_file_copy
+      @[Brief]: Systematically tests the test_ac_009_2_cross_file_copy behavior.
+      @[Expect]: Test passes and adheres to conditions.
     """
     repo = setup_git_repo(tmp_path)
     
@@ -126,7 +141,14 @@ def test_ac_009_2_cross_file_copy(tmp_path):
 
 def test_ac_009_3_vcs_unreachable(tmp_path):
     """
-    AC-009-3: Remote/VCS unreachable causes clear error handling.
+    [@AC-009-3,US-009]
+    TC-Sys-0093:
+      @[Name]: test_ac_009_3_vcs_unreachable
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_009_3_vcs_unreachable
+      @[Brief]: Systematically tests the test_ac_009_3_vcs_unreachable behavior.
+      @[Expect]: Test passes and adheres to conditions.
     """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir()

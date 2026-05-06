@@ -2,6 +2,7 @@ import pytest
 import subprocess
 import json
 import os
+import sys
 import stat
 
 def create_mock_metadata(metadata_dir, commit_id, file_name, line_num, gen_ratio, filename_override=None):
@@ -15,7 +16,7 @@ def create_mock_metadata(metadata_dir, commit_id, file_name, line_num, gen_ratio
 def run_e2e_cli(tmp_path, metadata_dir, blame_lines=None, repo="mock://repo", start="2026-01-01T00:00:00Z", end="2026-12-31T23:59:59Z", log_level="INFO", alg="A", patches_dir=None):
     import json
     cmd = [
-        "python", "aggregateGenCodeDesc.py",
+        sys.executable, "-m", "coverage", "run", "-a", "--data-file", "/Users/enigmawu/HZ-XYZ-FORKS/MyGenCodeDesc-AntiGravity-Gemini31-ProHigh/.coverage", "aggregateGenCodeDesc.py",
         "--repoURL", repo,
         "--repoBranch", "main",
         "--startTime", start,
@@ -43,7 +44,16 @@ def run_e2e_cli(tmp_path, metadata_dir, blame_lines=None, repo="mock://repo", st
     return json.loads(result.stdout), result.stderr
 
 def test_ac_007_1_git_sha(tmp_path):
-    """AC-007-1: Git revision identity is SHA hash"""
+    """
+    [@AC-007-1,US-007]
+    TC-Sys-0071:
+      @[Name]: test_ac_007_1_git_sha
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_007_1_git_sha
+      @[Brief]: Systematically tests the test_ac_007_1_git_sha behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir()
     create_mock_metadata(m_dir, "c2fe1db2c2fe1db2c2fe1db2c2fe1db2c2fe1db2", "index.js", 2, 80)
@@ -53,7 +63,16 @@ def test_ac_007_1_git_sha(tmp_path):
     assert out["SUMMARY"]["weightedModeRatio"] == 80.0
 
 def test_ac_007_2_svn_integer(tmp_path):
-    """AC-007-2: SVN revision identity is sequential integer"""
+    """
+    [@AC-007-2,US-007]
+    TC-Sys-0072:
+      @[Name]: test_ac_007_2_svn_integer
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_007_2_svn_integer
+      @[Brief]: Systematically tests the test_ac_007_2_svn_integer behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir(exist_ok=True)
     create_mock_metadata(m_dir, "4217", "main.py", 1, 100)
@@ -63,7 +82,16 @@ def test_ac_007_2_svn_integer(tmp_path):
     assert out["SUMMARY"]["weightedModeRatio"] == 100.0
 
 def test_ac_008_3_scale_empty_window(tmp_path):
-    """AC-008-3: Empty time window returns 0.0 naturally."""
+    """
+    [@AC-008-3,US-008]
+    TC-Sys-0083:
+      @[Name]: test_ac_008_3_scale_empty_window
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_008_3_scale_empty_window
+      @[Brief]: Systematically tests the test_ac_008_3_scale_empty_window behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir(exist_ok=True)
     out, stderr = run_e2e_cli(tmp_path, m_dir, [])
@@ -71,7 +99,16 @@ def test_ac_008_3_scale_empty_window(tmp_path):
     assert out["SUMMARY"]["weightedModeRatio"] == 0.0
 
 def test_ac_008_4_scale_io_failure(tmp_path):
-    """AC-008-4: Graceful I/O failure recovery."""
+    """
+    [@AC-008-4,US-008]
+    TC-Sys-0084:
+      @[Name]: test_ac_008_4_scale_io_failure
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_008_4_scale_io_failure
+      @[Brief]: Systematically tests the test_ac_008_4_scale_io_failure behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir(exist_ok=True)
     fault_file = m_dir / "crash.json"
@@ -87,7 +124,16 @@ def test_ac_008_4_scale_io_failure(tmp_path):
 # -- US-010: Diagnostics and Logging Unpacked --
 
 def test_ac_010_1_default_log_level_phases(tmp_path):
-    """AC-010-1: Default log level is INFO with load/process/summary phases"""
+    """
+    [@AC-010-1,US-010]
+    TC-Sys-0101:
+      @[Name]: test_ac_010_1_default_log_level_phases
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_010_1_default_log_level_phases
+      @[Brief]: Systematically tests the test_ac_010_1_default_log_level_phases behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir(exist_ok=True)
     create_mock_metadata(m_dir, "C1", "main.py", 1, 100)
@@ -98,7 +144,16 @@ def test_ac_010_1_default_log_level_phases(tmp_path):
     assert "PROCESS" not in stderr  # PROCESS is DEBUG level
 
 def test_ac_010_2_debug_level_detail(tmp_path):
-    """AC-010-2: DEBUG level shows per-file and per-line detail"""
+    """
+    [@AC-010-2,US-010]
+    TC-Sys-0102:
+      @[Name]: test_ac_010_2_debug_level_detail
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_010_2_debug_level_detail
+      @[Brief]: Systematically tests the test_ac_010_2_debug_level_detail behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir(exist_ok=True)
     create_mock_metadata(m_dir, "C1", "main.py", 1, 100)
@@ -107,7 +162,16 @@ def test_ac_010_2_debug_level_detail(tmp_path):
     assert "[DEBUG] [AlgC] PROCESS file=main.py line=1 origin=C1 genRatio=100" in stderr
 
 def test_ac_010_3_warn_anomalies(tmp_path):
-    """AC-010-3: WARN level logs non-fatal anomalies"""
+    """
+    [@AC-010-3,US-010]
+    TC-Sys-0103:
+      @[Name]: test_ac_010_3_warn_anomalies
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_010_3_warn_anomalies
+      @[Brief]: Systematically tests the test_ac_010_3_warn_anomalies behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir(exist_ok=True)
     create_mock_metadata(m_dir, "C1", "main.py", 1, 100, filename_override="C1.json")
@@ -117,7 +181,16 @@ def test_ac_010_3_warn_anomalies(tmp_path):
     assert "[WARNING] [AlgC] Duplicate genCodeDesc" in stderr
 
 def test_ac_010_4_error_fatal_failures(tmp_path):
-    """AC-010-4: ERROR level logs fatal failures"""
+    """
+    [@AC-010-4,US-010]
+    TC-Sys-0104:
+      @[Name]: test_ac_010_4_error_fatal_failures
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_010_4_error_fatal_failures
+      @[Brief]: Systematically tests the test_ac_010_4_error_fatal_failures behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir(exist_ok=True)
     create_mock_metadata(m_dir, "C1", "main.py", 1, 150) # Invalid bounds causes fatal rejection of record
@@ -126,7 +199,16 @@ def test_ac_010_4_error_fatal_failures(tmp_path):
     assert "[ERROR] [AlgC] genRatio must be 0-100" in stderr
 
 def test_ac_010_5_error_level_suppresses(tmp_path):
-    """AC-010-5: --log-level ERROR suppresses INFO and WARN"""
+    """
+    [@AC-010-5,US-010]
+    TC-Sys-0105:
+      @[Name]: test_ac_010_5_error_level_suppresses
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_010_5_error_level_suppresses
+      @[Brief]: Systematically tests the test_ac_010_5_error_level_suppresses behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir(exist_ok=True)
     create_mock_metadata(m_dir, "C1", "main.py", 1, 100, filename_override="C1.json")
@@ -138,7 +220,16 @@ def test_ac_010_5_error_level_suppresses(tmp_path):
     assert "[INFO]" not in stderr
 
 def test_ac_010_6_structured_log_format(tmp_path):
-    """AC-010-6: Structured log format for machine parsing"""
+    """
+    [@AC-010-6,US-010]
+    TC-Sys-0106:
+      @[Name]: test_ac_010_6_structured_log_format
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_010_6_structured_log_format
+      @[Brief]: Systematically tests the test_ac_010_6_structured_log_format behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     m_dir = tmp_path / "metadata"
     m_dir.mkdir(exist_ok=True)
     create_mock_metadata(m_dir, "C1", "main.py", 1, 100)
@@ -149,7 +240,16 @@ def test_ac_010_6_structured_log_format(tmp_path):
     assert re.search(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \[INFO\] \[AlgC\]", stderr)
 
 def test_ac_010_7_testability(tmp_path):
-    """AC-010-7: Unit tests can set log level programmatically"""
+    """
+    [@AC-010-7,US-010]
+    TC-Sys-0107:
+      @[Name]: test_ac_010_7_testability
+      @[Priority]: P1 Functional
+      @[Category]: Typical
+      @[Purpose]: Verify test_ac_010_7_testability
+      @[Brief]: Systematically tests the test_ac_010_7_testability behavior.
+      @[Expect]: Test passes and adheres to conditions.
+    """
     import logging
     # API mock to ensure the log_level is not just CLI bound but accessible directly
     from aggregateGenCodeDesc import logger
